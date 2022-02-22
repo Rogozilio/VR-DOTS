@@ -19,10 +19,9 @@ namespace DOTS.Systems
     [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
     public class XRInputActionSystem : JobComponentSystem
     {
-        [BurstCompile]
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            JobHandle inputLeftHandJob = Entities.WithAll<TagLeftHand>().ForEach(
+            JobHandle inputLeftHandJob = Entities.ForEach(
                 (ref Translation transform, ref Rotation rotation,
                     ref XRHandInputControllerComponent input, ref PhysicsVelocity velocity) =>
                 {
@@ -32,15 +31,6 @@ namespace DOTS.Systems
                 }).Schedule(inputDeps);
             inputLeftHandJob.Complete();
             
-            JobHandle inputRightHandJob = Entities.WithAll<TagRightHand>().ForEach(
-                (ref Translation transform, ref Rotation rotation,
-                    ref XRHandInputControllerComponent input, ref PhysicsVelocity velocity) =>
-                {
-                    float3 antiGravity = new float3(0, 0.1635f, 0);
-                    velocity.Linear = (input.position - transform.Value) * 60 + antiGravity;
-                    velocity.Angular = math.mul(math.inverse(rotation.Value), input.rotation).value.xyz * 60;
-                }).Schedule(inputDeps);
-            inputRightHandJob.Complete();
             return inputDeps;
         }
     } 

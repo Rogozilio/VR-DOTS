@@ -22,9 +22,6 @@ namespace DOTS.Systems
         {
             _buildPhysicsWorld = World.GetOrCreateSystem<BuildPhysicsWorld>();
             _stepPhysicsWorld = World.GetOrCreateSystem<StepPhysicsWorld>();
-            // _entityHands = EntityManager.CreateEntity();
-            // EntityManager.SetName(_entityHands, "Hands");
-            // EntityManager.AddComponentData(_entityHands, new HandsObjectComponent());
         }
 
         private struct ApplicationJob : ITriggerEventsJob
@@ -54,9 +51,14 @@ namespace DOTS.Systems
                 {
                     return;
                 }
+                
                 var hand = handGroup[entityHand];
                 var hands = handsGroup[entityHands];
                 var interactive = interactiveGroup[entityInHand];
+
+                interactive.inHand = hand.handType;
+                interactive.distance = math.distance(translate[entityHand].Value, translate[entityInHand].Value);
+                
                 if (!hand.isOccupied && hand.selectValue > 0.9f && interactive.inHand == HandType.None)
                 {
                     hand.isOccupied = true;

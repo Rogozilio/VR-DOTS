@@ -3,7 +3,8 @@
 namespace DOTS.Tags
 {
     [GenerateAuthoringComponent]
-    public struct TagRightHand : IComponentData
+    public struct TagGhost : IComponentData
     {
+        
     }
 }

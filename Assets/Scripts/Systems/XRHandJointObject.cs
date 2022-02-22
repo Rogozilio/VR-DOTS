@@ -1,4 +1,5 @@
-﻿using DOTS.Components;
+﻿using Components;
+using DOTS.Components;
 using DOTS.Enum;
 using DOTS.Tags;
 using Unity.Burst;
@@ -19,7 +20,6 @@ namespace DOTS.Systems
             var index = physicsWorld.GetRigidBodyIndex(entity);
             return physicsWorld.Bodies[index].WorldFromBody;
         }
-        [BurstCompile]
         protected override void OnUpdate()
         {
             Entities.ForEach(

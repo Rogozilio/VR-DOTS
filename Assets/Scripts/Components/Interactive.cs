@@ -3,7 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
-namespace DOTS.Tags
+namespace Components
 {
     [GenerateAuthoringComponent]
     public struct Interactive : IComponentData
@@ -12,5 +12,6 @@ namespace DOTS.Tags
         [HideInInspector] public bool isJointed;
         [HideInInspector] public HandType inHand;
         [HideInInspector] public Entity Hand;
+        [HideInInspector] public float distance;
     }
 }

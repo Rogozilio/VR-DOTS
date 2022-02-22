@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using DOTS.Components;
+using DOTS.Enum;
 using DOTS.Tags;
 using Unity.Entities;
 using Unity.Jobs;
@@ -32,9 +33,12 @@ public class XRInputSystemBase : SystemBase
         float2 rotateAnchor = GameController.XRLeftHand.input.rotateAnchor;
         float2 translateAnchor = GameController.XRLeftHand.input.translateAnchor;
 
-        JobHandle inputLeftHandJob = Entities.WithAll<TagLeftHand>().ForEach(
+        JobHandle inputLeftHandJob = Entities.ForEach(
             (ref XRHandInputControllerComponent input) =>
             {
+                if(input.handType == HandType.Right)
+                    return;
+                
                 input.position = position;
                 input.rotation = rotation;
                 input.trackingState = trackingState;
@@ -74,9 +78,12 @@ public class XRInputSystemBase : SystemBase
         rotateAnchor = GameController.XRRightHand.input.rotateAnchor;
         translateAnchor = GameController.XRRightHand.input.translateAnchor;
 
-        JobHandle inputRightHandJob = Entities.WithAll<TagRightHand>().ForEach(
+        JobHandle inputRightHandJob = Entities.ForEach(
             (ref XRHandInputControllerComponent input) =>
             {
+                if(input.handType == HandType.Left)
+                    return;
+                
                 input.position = position;
                 input.rotation = rotation;
                 input.trackingState = trackingState;

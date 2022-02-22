@@ -1,4 +1,5 @@
-﻿using DOTS.Components;
+﻿using Components;
+using DOTS.Components;
 using DOTS.Enum;
 using DOTS.Tags;
 using Unity.Entities;
