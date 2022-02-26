@@ -15,6 +15,7 @@ using UnityEngine;
 namespace DOTS.Systems
 {
     [UpdateInGroup(typeof(SimulationSystemGroup))]
+    [UpdateAfter(typeof(XRHandTriggerEvent))]
     public class ObjectSelectionSystem : SystemBase
     {
         protected override void OnUpdate()
@@ -23,50 +24,50 @@ namespace DOTS.Systems
             var transformObject = new NativeArray<Translation>(2, Allocator.TempJob);
             var entityGhost = new NativeArray<Entity>(2, Allocator.TempJob);
 
-            var getMinDistanceJob = Entities.ForEach(
-                (ref Interactive interactive, in Translation translation) =>
-                {
-                    if (interactive.inHand == HandType.None)
-                        return;
+            var GetMinDistanceJob = Entities.ForEach(
+                    (ref Interactive interactive, ref Translation translation) =>
+                    {
+                        if (interactive.inHand == HandType.None)
+                            return;
 
-                    if (interactive.inHand == HandType.Left)
-                    {
-                        if (minDistanceHandToObject[0] == 0f ||
-                            minDistanceHandToObject[0] > interactive.distance)
+                        if (interactive.inHand == HandType.Left)
                         {
-                            minDistanceHandToObject[0] = interactive.distance;
-                            transformObject[0] = translation;
-                            entityGhost[0] = interactive.ghost;
+                            if (minDistanceHandToObject[0] == 0f ||
+                                minDistanceHandToObject[0] > interactive.distance)
+                            {
+                                minDistanceHandToObject[0] = interactive.distance;
+                                transformObject[0] = translation;
+                                entityGhost[0] = interactive.ghost;
+                                
+                            }
                         }
-                    }
-                    else
-                    {
-                        if (minDistanceHandToObject[1] == 0f ||
-                            minDistanceHandToObject[1] > interactive.distance)
+                        else
                         {
-                            minDistanceHandToObject[1] = interactive.distance;
-                            transformObject[1] = translation;
-                            entityGhost[1] = interactive.ghost;
+                            if (minDistanceHandToObject[1] == 0f ||
+                                minDistanceHandToObject[1] > interactive.distance)
+                            {
+                                minDistanceHandToObject[1] = interactive.distance;
+                                transformObject[1] = translation;
+                                entityGhost[1] = interactive.ghost;
+                            }
                         }
-                    }
-                }).Schedule(Dependency);
+                    }).WithoutBurst().WithName("GetMinDistanceJob")
+                .Schedule(Dependency);
 
             var selectedObject = Entities.WithAll<TagGhost>().ForEach(
                     (Entity entity, ref Translation translation, ref NonUniformScale scale) =>
                     {
-                        if (entity.Index == entityGhost[0].Index &&
-                            entity.Version == entityGhost[0].Version)
+                        for (int i = 0; i < entityGhost.Length; i++)
                         {
-                            translation = transformObject[0];
-                        }
-
-                        if (entity.Index == entityGhost[1].Index &&
-                            entity.Version == entityGhost[1].Version)
-                        {
-                            translation = transformObject[1];
+                            if (entity.Index == entityGhost[i].Index &&
+                                entity.Version == entityGhost[i].Version)
+                            {
+                                translation = transformObject[i];
+                                scale.Value += 0.001f;
+                            }
                         }
                     })
-                .Schedule(getMinDistanceJob);
+                .WithoutBurst().WithName("selectedObject").Schedule(GetMinDistanceJob);
             selectedObject.Complete();
 
             minDistanceHandToObject.Dispose();

@@ -13,7 +13,7 @@ using UnityEngine;
 
 namespace DOTS.Systems
 {
-    public class XRHandTriggerEvent : JobComponentSystem
+    public class XRHandTriggerEvent : SystemBase
     {
         private BuildPhysicsWorld _buildPhysicsWorld;
         private StepPhysicsWorld _stepPhysicsWorld;
@@ -100,7 +100,7 @@ namespace DOTS.Systems
                 handsGroup[entityHands] = hands;
             }
         }
-        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        protected override void OnUpdate()
         {
             Entities.WithAll<HandsObjectComponent>().ForEach((Entity e) =>
             {
@@ -114,8 +114,9 @@ namespace DOTS.Systems
                 translate = GetComponentDataFromEntity<Translation>(),
                 handsGroup = GetComponentDataFromEntity<HandsObjectComponent>(),
             };
-            return applicationJob.Schedule(_stepPhysicsWorld.Simulation,
-                ref _buildPhysicsWorld.PhysicsWorld, inputDeps);
+            var a = applicationJob.Schedule(_stepPhysicsWorld.Simulation,
+                ref _buildPhysicsWorld.PhysicsWorld, Dependency);
+            a.Complete();
         }
     }
 }
