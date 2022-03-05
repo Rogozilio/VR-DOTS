@@ -13,7 +13,7 @@ namespace DOTS.Systems
     {
         protected override void OnUpdate()
         {
-            Entities.ForEach((ref Interactive interactive, ref PhysicsVelocity velocity) =>
+            Entities.ForEach(( ref PhysicsVelocity velocity, ref Interactive interactive) =>
             {
                 if (interactive.isJointed)
                 {

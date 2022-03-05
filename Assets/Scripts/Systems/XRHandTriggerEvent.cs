@@ -56,45 +56,45 @@ namespace DOTS.Systems
                 var hands = handsGroup[entityHands];
                 var interactive = interactiveGroup[entityInHand];
 
-                interactive.inHand = hand.handType;
+                interactive.nearHand = hand.handType;
                 interactive.distance = math.distance(translate[entityHand].Value, translate[entityInHand].Value);
                 
-                if (!hand.isOccupied && hand.selectValue > 0.9f && interactive.inHand == HandType.None)
-                {
-                    hand.isOccupied = true;
-                    interactive.Hand = entityHand;
-                    if (hand.handType == HandType.Left)
-                        hands.objectInLeftHand = entityInHand;
-                    else if (hand.handType == HandType.Right) 
-                        hands.objectInRightHand = entityInHand;
-                }
-                else if (hand.selectValue > 0.9f && interactive.inHand != HandType.None)
-                {
-                    if (hand.activateValue > 0.9f) 
-                        hands.activeHand = hand.handType;
-                    else {
-                        if (hand.handType == hands.activeHand) {
-                            Entity ghost = Entity.Null;
-                            if (hands.activeHand == HandType.Left) 
-                                ghost = interactiveGroup[hands.objectInLeftHand].ghost; 
-                            else if (hands.activeHand == HandType.Right) 
-                                ghost = interactiveGroup[hands.objectInRightHand].ghost; 
-                            var pos = translate[ghost];
-                            pos.Value = float3.zero;
-                            translate[ghost] = pos;
-                            hands.activeHand = HandType.None; 
-                        } 
-                    }
-                }
-                else if (hand.isOccupied && hand.selectValue < 0.9f && interactive.inHand != HandType.None)
-                {
-                    hand.isOccupied = false;
-                    interactive.inHand = HandType.None;
-                    if (hand.handType == hands.activeHand)
-                    {
-                        hands.isReadyJoint = true;
-                    }
-                }
+                // if (!hand.isOccupied && hand.selectValue > 0.9f && interactive.inHand == HandType.None)
+                // {
+                //     hand.isOccupied = true;
+                //     interactive.Hand = entityHand;
+                //     if (hand.handType == HandType.Left)
+                //         hands.objectInLeftHand = entityInHand;
+                //     else if (hand.handType == HandType.Right) 
+                //         hands.objectInRightHand = entityInHand;
+                // }
+                // else if (hand.selectValue > 0.9f && interactive.inHand != HandType.None)
+                // {
+                //     if (hand.activateValue > 0.9f) 
+                //         hands.activeHand = hand.handType;
+                //     else {
+                //         if (hand.handType == hands.activeHand) {
+                //             Entity ghost = Entity.Null;
+                //             if (hands.activeHand == HandType.Left) 
+                //                 ghost = interactiveGroup[hands.objectInLeftHand].ghost; 
+                //             else if (hands.activeHand == HandType.Right) 
+                //                 ghost = interactiveGroup[hands.objectInRightHand].ghost; 
+                //             var pos = translate[ghost];
+                //             pos.Value = float3.zero;
+                //             translate[ghost] = pos;
+                //             hands.activeHand = HandType.None; 
+                //         } 
+                //     }
+                // }
+                // else if (hand.isOccupied && hand.selectValue < 0.9f && interactive.inHand != HandType.None)
+                // {
+                //     hand.isOccupied = false;
+                //     interactive.inHand = HandType.None;
+                //     if (hand.handType == hands.activeHand)
+                //     {
+                //         hands.isReadyJoint = true;
+                //     }
+                // }
                 handGroup[entityHand] = hand;
                 interactiveGroup[entityInHand] = interactive;
                 handsGroup[entityHands] = hands;

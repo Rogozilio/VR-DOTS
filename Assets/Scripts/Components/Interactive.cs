@@ -10,6 +10,8 @@ namespace Components
     {
         public Entity ghost;
         [HideInInspector] public bool isJointed;
+        [HideInInspector] public bool isClosest;
+        [HideInInspector] public HandType nearHand;
         [HideInInspector] public HandType inHand;
         [HideInInspector] public Entity Hand;
         [HideInInspector] public float distance;

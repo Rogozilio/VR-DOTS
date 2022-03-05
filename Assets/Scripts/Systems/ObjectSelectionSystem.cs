@@ -22,40 +22,47 @@ namespace DOTS.Systems
         {
             var minDistanceHandToObject = new NativeArray<float>(2, Allocator.TempJob);
             var transformObject = new NativeArray<Translation>(2, Allocator.TempJob);
+            var rotateObject = new NativeArray<Rotation>(2, Allocator.TempJob);
+            var entityObject = new NativeArray<Entity>(2, Allocator.TempJob);
             var entityGhost = new NativeArray<Entity>(2, Allocator.TempJob);
 
             var GetMinDistanceJob = Entities.ForEach(
-                    (ref Interactive interactive, ref Translation translation) =>
+                    (Entity entity, ref Interactive interactive, in Translation translation, in Rotation rotate) =>
                     {
-                        if (interactive.inHand == HandType.None)
+                        if (interactive.nearHand == HandType.None
+                            || interactive.inHand != HandType.None)
                             return;
 
-                        if (interactive.inHand == HandType.Left)
+                        var index = (int) interactive.nearHand - 1;
+
+                        if (minDistanceHandToObject[index] == 0f ||
+                            minDistanceHandToObject[index] > interactive.distance)
                         {
-                            if (minDistanceHandToObject[0] == 0f ||
-                                minDistanceHandToObject[0] > interactive.distance)
-                            {
-                                minDistanceHandToObject[0] = interactive.distance;
-                                transformObject[0] = translation;
-                                entityGhost[0] = interactive.ghost;
-                                
-                            }
+                            minDistanceHandToObject[index] = interactive.distance;
+                            transformObject[index] = translation;
+                            rotateObject[index] = rotate;
+                            entityGhost[index] = interactive.ghost;
+                            entityObject[index] = entity;
                         }
-                        else
-                        {
-                            if (minDistanceHandToObject[1] == 0f ||
-                                minDistanceHandToObject[1] > interactive.distance)
-                            {
-                                minDistanceHandToObject[1] = interactive.distance;
-                                transformObject[1] = translation;
-                                entityGhost[1] = interactive.ghost;
-                            }
-                        }
-                    }).WithoutBurst().WithName("GetMinDistanceJob")
+                    }).WithName("GetMinDistanceJob")
                 .Schedule(Dependency);
 
+            var setIsClosestForInteractive = Job.WithCode(() =>
+            {
+                var interactive = GetComponentDataFromEntity<Interactive>();
+                foreach (var entity in entityObject)
+                {
+                    if (entity != Entity.Null)
+                    {
+                        var entityInteractive = interactive[entity];
+                        entityInteractive.isClosest = true;
+                        interactive[entity] = entityInteractive;
+                    }
+                }
+            }).WithName("setIsClosestForInteractive").Schedule(GetMinDistanceJob);
+
             var selectedObject = Entities.WithAll<TagGhost>().ForEach(
-                    (Entity entity, ref Translation translation, ref NonUniformScale scale) =>
+                    (Entity entity, ref Translation translation, ref Rotation rotate, ref NonUniformScale scale) =>
                     {
                         for (int i = 0; i < entityGhost.Length; i++)
                         {
@@ -63,16 +70,19 @@ namespace DOTS.Systems
                                 entity.Version == entityGhost[i].Version)
                             {
                                 translation = transformObject[i];
-                                scale.Value += 0.001f;
+                                rotate = rotateObject[i];
+                                //scale.Value += 0.001f;
                             }
                         }
                     })
-                .WithoutBurst().WithName("selectedObject").Schedule(GetMinDistanceJob);
+                .WithName("selectedObject").Schedule(setIsClosestForInteractive);
             selectedObject.Complete();
 
             minDistanceHandToObject.Dispose();
             transformObject.Dispose();
+            rotateObject.Dispose();
             entityGhost.Dispose();
+            entityObject.Dispose();
         }
     }
 }
