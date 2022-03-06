@@ -11,6 +11,7 @@ using UnityEngine;
 namespace DOTS.Systems
 {
     [UpdateAfter(typeof(ObjectSelectionSystem))]
+    [UpdateBefore(typeof(InteractiveObjectJoint))]
     public class GrabSelectedObjectSystem : SystemBase
     {
         private RigidTransform GetRigidBody(Entity entity)
@@ -73,7 +74,7 @@ namespace DOTS.Systems
                 
                 if (entityHands[index] != Entity.Null && entityObjects[index] != Entity.Null)
                 {
-                    interactive.isJointed = true;
+                    interactive.isJointedWithHand = true;
                     interactive.inHand = interactive.nearHand;
                 }
             }).Schedule(activeHandJob);

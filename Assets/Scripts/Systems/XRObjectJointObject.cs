@@ -15,6 +15,7 @@ namespace DOTS.Systems
 {
     public class XRObjectJointObject : ComponentSystem
     {
+        
         private RigidTransform GetRigidBody(Entity entity)
         {
             var physicsWorld = World.GetOrCreateSystem<BuildPhysicsWorld>().PhysicsWorld;
@@ -35,7 +36,7 @@ namespace DOTS.Systems
                     var bodyFrameB = new BodyFrame(new RigidTransform());
                     var entityA = interactive[hands.objectInLeftHand];
                     var entityB = interactive[hands.objectInRightHand];
-                    entityA.isJointed = true; entityB.isJointed = true;
+                    entityA.isJointedWithHand = true; entityB.isJointedWithHand = true;
                     interactive[hands.objectInLeftHand] = entityA;
                     interactive[hands.objectInRightHand] = entityB;
                     if (hands.activeHand == HandType.Left)

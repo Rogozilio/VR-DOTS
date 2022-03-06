@@ -34,7 +34,7 @@ namespace DOTS.Systems
                         
                         var entityB = interactive[bodyPair.EntityB];
                         entityB.Hand = Entity.Null;
-                        entityB.isJointed = false;
+                        entityB.isJointedWithHand = false;
                         entityB.inHand = HandType.None;
                         interactive[bodyPair.EntityB] = entityB;
                         
@@ -55,8 +55,8 @@ namespace DOTS.Systems
                         || entityA.inHand == HandType.Right
                         && entityB.inHand == HandType.Left)
                     {
-                        entityA.isJointed = false;
-                        entityB.isJointed = false;
+                        entityA.isJointedWithHand = false;
+                        entityB.isJointedWithHand = false;
                         entityJointObjects[0] = entity;
                     }
                 }
