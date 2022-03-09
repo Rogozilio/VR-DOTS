@@ -15,7 +15,7 @@ using UnityEngine;
 namespace DOTS.Systems
 {
     [UpdateInGroup(typeof(SimulationSystemGroup))]
-    [UpdateAfter(typeof(XRHandTriggerEvent))]
+    [UpdateAfter(typeof(FixedStepSimulationSystemGroup))]
     public class ObjectSelectionSystem : SystemBase
     {
         protected override void OnUpdate()
@@ -30,9 +30,9 @@ namespace DOTS.Systems
                     (Entity entity, ref Interactive interactive, in Translation translation, in Rotation rotate) =>
                     {
                         if (interactive.nearHand == HandType.None
-                            || interactive.inHand != HandType.None)
+                            || interactive.withHand == JointState.On)
                             return;
-
+                        
                         var index = (int) interactive.nearHand - 1;
 
                         if (minDistanceHandToObject[index] == 0f ||
@@ -71,7 +71,6 @@ namespace DOTS.Systems
                             {
                                 translation = transformObject[i];
                                 rotate = rotateObject[i];
-                                //scale.Value += 0.001f;
                             }
                         }
                     })

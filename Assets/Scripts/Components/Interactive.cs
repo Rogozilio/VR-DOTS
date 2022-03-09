@@ -9,12 +9,10 @@ namespace Components
     public struct Interactive : IComponentData
     {
         public Entity ghost;
-        [HideInInspector] public bool isJointedWithHand;
-        [HideInInspector] public bool isJointedWithObject;
+        [HideInInspector] public JointState withHand;
+        [HideInInspector] public JointState withInteractive;
         [HideInInspector] public bool isClosest;
         [HideInInspector] public HandType nearHand;
-        [HideInInspector] public HandType inHand;
-        [HideInInspector] public Entity Hand;
         [HideInInspector] public float distance;
     }
 }

@@ -12,16 +12,20 @@ using UnityEngine;
 
 namespace DOTS.Systems
 {
-    [UpdateInGroup(typeof(SimulationSystemGroup))]
-    [UpdateBefore(typeof(XRInputActionSystem))]
+    [UpdateInGroup(typeof(InitializationSystemGroup))]
     public class ResetDataSystem : SystemBase
     {
         protected override void OnUpdate()
         {
-            // Entities.ForEach((ref XRHandInputControllerComponent input) =>
-            // {
-            //     input.isOccupied = false;
-            // }).Schedule();
+            Entities.ForEach((ref InputControllerComponent input) =>
+            {
+                if (!input.IsGripPressed)
+                {
+                    input.inHand = Entity.Null;
+                    input.isJoint = false;
+                }
+                    
+            }).Schedule();
 
         //Сброс значений интерактивных объектов
             Entities.ForEach(
@@ -36,8 +40,6 @@ namespace DOTS.Systems
                 (ref NonUniformScale scale, ref Translation translation, in LocalToWorld local) =>
                 {
                     translation.Value = float3.zero;
-                    //float3 localScale = new float3(local.Value.c0.x, local.Value.c1.y, local.Value.c2.z);
-                    //scale.Value = math.floor(localScale * 10f) * 0.1f;
                 }).Schedule();
         }
     }

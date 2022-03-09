@@ -17,21 +17,21 @@ using UnityEngine.XR;
 namespace DOTS.Systems
 {
     [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
-    public class XRInputActionSystem : JobComponentSystem
+    [UpdateBefore(typeof(TriggerEventHandWithInteractive))]
+    public class MoveHandSystem : SystemBase
     {
-        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        protected override void OnUpdate()
         {
-            JobHandle inputLeftHandJob = Entities.ForEach(
-                (ref Translation transform, ref Rotation rotation,
-                    ref XRHandInputControllerComponent input, ref PhysicsVelocity velocity) =>
+            var a = Entities.ForEach(
+                (ref PhysicsVelocity velocity, in Translation transform, in Rotation rotation,
+                    in InputControllerComponent input) =>
                 {
                     float3 antiGravity = new float3(0, 0.1635f, 0);
                     velocity.Linear = (input.position - transform.Value) * 60 + antiGravity;
-                    velocity.Angular = math.mul(math.inverse(rotation.Value), input.rotation).value.xyz * 60;
-                }).Schedule(inputDeps);
-            inputLeftHandJob.Complete();
-            
-            return inputDeps;
+                    velocity.Angular =
+                        math.mul(math.inverse(rotation.Value), input.rotation).value.xyz * 60;
+                }).Schedule(Dependency);
+            a.Complete();
         }
-    } 
+    }
 }

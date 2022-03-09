@@ -9,62 +9,52 @@ using Unity.Physics;
 namespace DOTS.Systems
 {
     [UpdateInGroup(typeof(SimulationSystemGroup))]
-    [UpdateAfter(typeof(GrabSelectedObjectSystem))]
+    [UpdateAfter(typeof(GripSelectedObjectSystem))]
     public class DisableJointObjects : SystemBase
     {
+        private EndSimulationEntityCommandBufferSystem _endSimulationEntityCommandBufferSystem;
+
+        protected override void OnCreate()
+        {
+            _endSimulationEntityCommandBufferSystem =
+                World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+        }
+
         protected override void OnUpdate()
         {
-            var handInput = GetComponentDataFromEntity<XRHandInputControllerComponent>();
-            var interactive = GetComponentDataFromEntity<Interactive>();
-            NativeArray<Entity> entityJointObjects = new NativeArray<Entity>(1, Allocator.TempJob);
-
-            var disableJointObjectsJob = Entities.ForEach((Entity entity, ref PhysicsConstrainedBodyPair bodyPair) =>
+            var handInput = GetComponentDataFromEntity<InputControllerComponent>();
+            var interactiveGroup = GetComponentDataFromEntity<Interactive>();
+            var cbs = _endSimulationEntityCommandBufferSystem.CreateCommandBuffer();
+            
+            Entities.ForEach((Entity entity, ref PhysicsConstrainedBodyPair bodyPair) =>
             {
                 //Hand -> object
                 if (handInput.HasComponent(bodyPair.EntityA))
                 {
-                    if (!handInput[bodyPair.EntityA].isOccupied)
-                        return;
-                    
-                    if (handInput[bodyPair.EntityA].selectValue < 0.9f)
+                    if (!handInput[bodyPair.EntityA].IsGripPressed)
                     {
-                        var entityA = handInput[bodyPair.EntityA];
-                        entityA.isOccupied = false;
-                        handInput[bodyPair.EntityA] = entityA;
+                        var interactive = interactiveGroup[bodyPair.EntityB];
+                        interactive.withHand = JointState.Off;
+                        interactiveGroup[bodyPair.EntityB] = interactive;
                         
-                        var entityB = interactive[bodyPair.EntityB];
-                        entityB.Hand = Entity.Null;
-                        entityB.isJointedWithHand = false;
-                        entityB.inHand = HandType.None;
-                        interactive[bodyPair.EntityB] = entityB;
-                        
-                        entityJointObjects[0] = entity;
+                        cbs.DestroyEntity(entity);
                     }
-
                     return;
                 }
 
                 //Object -> object
-                if (interactive.HasComponent(bodyPair.EntityA)
-                    && interactive.HasComponent(bodyPair.EntityB))
+                if (interactiveGroup.HasComponent(bodyPair.EntityA)
+                    && interactiveGroup.HasComponent(bodyPair.EntityB))
                 {
-                    var entityA = interactive[bodyPair.EntityA];
-                    var entityB = interactive[bodyPair.EntityB];
-                    if (entityA.inHand == HandType.Left
-                        && entityB.inHand == HandType.Right
-                        || entityA.inHand == HandType.Right
-                        && entityB.inHand == HandType.Left)
+                    var interactiveA = interactiveGroup[bodyPair.EntityA];
+                    var interactiveB = interactiveGroup[bodyPair.EntityB];
+                    if (interactiveA.withHand == JointState.On &&
+                        interactiveB.withHand == JointState.On)
                     {
-                        entityA.isJointedWithHand = false;
-                        entityB.isJointedWithHand = false;
-                        entityJointObjects[0] = entity;
+                        cbs.DestroyEntity(entity);
                     }
                 }
-            }).Schedule(Dependency);
-            disableJointObjectsJob.Complete();
-            EntityManager.DestroyEntity(entityJointObjects[0]);
-
-            entityJointObjects.Dispose();
+            }).Schedule();
         }
     }
 }

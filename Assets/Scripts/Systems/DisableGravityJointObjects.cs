@@ -15,7 +15,7 @@ namespace DOTS.Systems
         {
             Entities.ForEach(( ref PhysicsVelocity velocity, ref Interactive interactive) =>
             {
-                if (interactive.isJointedWithHand)
+                if (interactive.withHand == JointState.On)
                 {
                     velocity.Linear += new float3(0, 0.1635f, 0);
                 }

@@ -7,10 +7,11 @@ using UnityEngine.InputSystem;
 namespace DOTS.Components
 {
     [GenerateAuthoringComponent]
-    public struct XRHandInputControllerComponent : IComponentData
+    public struct InputControllerComponent : IComponentData
     {
         public HandType handType;
-        [HideInInspector]public bool isOccupied;
+        [HideInInspector]public Entity inHand;
+        [HideInInspector]public bool isJoint;
         [HideInInspector]public float3 position;
         [HideInInspector]public quaternion rotation;
         [HideInInspector]public int trackingState;
@@ -28,5 +29,8 @@ namespace DOTS.Components
         [HideInInspector]public float2 move;
         [HideInInspector]public float2 rotateAnchor;
         [HideInInspector]public float2 translateAnchor;
+
+        public bool IsGripPressed => selectValue > 0.9f;
+        public bool IsTriggerPressed => activateValue > 0.9f;
     }
 }

@@ -10,7 +10,7 @@ using Unity.Rendering;
 using UnityEngine;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
-public class XRInputSystemBase : SystemBase
+public class InputControllerSystem : SystemBase
 {
     protected override void OnUpdate()
     {
@@ -34,7 +34,7 @@ public class XRInputSystemBase : SystemBase
         float2 translateAnchor = GameController.XRLeftHand.input.translateAnchor;
 
         JobHandle inputLeftHandJob = Entities.ForEach(
-            (ref XRHandInputControllerComponent input) =>
+            (ref InputControllerComponent input) =>
             {
                 if(input.handType == HandType.Right)
                     return;
@@ -79,7 +79,7 @@ public class XRInputSystemBase : SystemBase
         translateAnchor = GameController.XRRightHand.input.translateAnchor;
 
         JobHandle inputRightHandJob = Entities.ForEach(
-            (ref XRHandInputControllerComponent input) =>
+            (ref InputControllerComponent input) =>
             {
                 if(input.handType == HandType.Left)
                     return;
