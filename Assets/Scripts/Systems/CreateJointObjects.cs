@@ -1,105 +1,105 @@
-﻿using Components;
 using DOTS.Components;
 using DOTS.Enum;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Physics;
+using Unity.Physics.Authoring;
 using Unity.Physics.Systems;
+using UnityEngine;
 
 namespace DOTS.Systems
 {
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(DisableJointObjects))]
-    public class CreateJointObjects : SystemBase
+    public partial class CreateJointObjects : SystemBase
     {
         private EndSimulationEntityCommandBufferSystem _endSimulationEntityCommandBufferSystem;
         private BuildPhysicsWorld _buildPhysicsWorld;
 
+        struct Joint
+        {
+            private EntityCommandBuffer _cbs;
+
+            [ReadOnly]
+            private PhysicsWorld _physicsWorld;
+
+            public Joint(ref EntityCommandBuffer cbs, ref PhysicsWorld physicsWorld)
+                => (_cbs, _physicsWorld) = (cbs, physicsWorld);
+
+            public void Create(Entity entityA, Entity entityB)
+            {
+                var rigidTransformHand = _physicsWorld
+                    .Bodies[_physicsWorld.GetRigidBodyIndex(entityA)].WorldFromBody;
+                var rigidTransformObject = _physicsWorld
+                    .Bodies[_physicsWorld.GetRigidBodyIndex(entityB)].WorldFromBody;
+                var bodyFrameA = new BodyFrame(new RigidTransform());
+                RigidTransform bFromA = math.mul(math.inverse(rigidTransformObject),
+                    rigidTransformHand);
+                var bodyFrameB = new BodyFrame(new RigidTransform()
+                    { pos = bFromA.pos, rot = bFromA.rot });
+                var entityHands = _cbs.CreateEntity();
+                _cbs.AddComponent(entityHands, new PhysicsConstrainedBodyPair(entityA,
+                    entityB, true));
+                _cbs.AddComponent(entityHands,
+                    PhysicsJoint.CreateFixed(bodyFrameA, bodyFrameB));
+                _cbs.AddSharedComponent(entityHands, new PhysicsWorldIndex());
+            }
+        }
+
         protected override void OnCreate()
         {
-            _endSimulationEntityCommandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+            _endSimulationEntityCommandBufferSystem =
+                World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
             _buildPhysicsWorld = World.GetOrCreateSystem<BuildPhysicsWorld>();
+            World.GetOrCreateSystem<EndJointConversionSystem>();
         }
 
         protected override void OnUpdate()
         {
-            var interactiveGroup = GetComponentDataFromEntity<Interactive>();
             var cbs = _endSimulationEntityCommandBufferSystem.CreateCommandBuffer();
             var physicsWorld = _buildPhysicsWorld.PhysicsWorld;
-            NativeArray<Entity> entityInteractive = new NativeArray<Entity>(2, Allocator.TempJob);
+            var jointGroup = GetComponentDataFromEntity<JointGroup>();
+            var joint = new Joint(ref cbs, ref physicsWorld);
+
             //Hand -> Interactive
-            var createHandJointInteractive = Entities.WithReadOnly(physicsWorld).ForEach((Entity entity, ref InputControllerComponent input) =>
-            {
-                if(input.inHand == Entity.Null || input.isJoint)
-                    return;
-
-                input.isJoint = true;
-                var interactive = interactiveGroup[input.inHand];
-                interactive.withHand = JointState.On;
-                interactiveGroup[input.inHand] = interactive;
-                
-                var rigidTransformHand = physicsWorld.Bodies[physicsWorld.GetRigidBodyIndex(entity)].WorldFromBody;
-                var rigidTransformObject = physicsWorld.Bodies[physicsWorld.GetRigidBodyIndex(input.inHand)].WorldFromBody;
-                var bodyFrameA = new BodyFrame(new RigidTransform());
-
-                RigidTransform bFromA =
-                    math.mul(math.inverse(rigidTransformObject),
-                        rigidTransformHand);
-                var bodyFrameB = new BodyFrame(new RigidTransform()
+            var createHandJointInteractive = Entities.ForEach(
+                (Entity entity, ref InputControllerComponent input) =>
                 {
-                    pos = bFromA.pos,
-                    rot = bFromA.rot
-                });
-                var _entityHands = cbs.CreateEntity();
-                cbs.AddComponent(_entityHands,
-                    new PhysicsConstrainedBodyPair(entity,
-                        input.inHand, true));
-                cbs.AddComponent(_entityHands,
-                    PhysicsJoint.CreateFixed(bodyFrameA, bodyFrameB));
-            }).Schedule(Dependency);
+                    if (input.inHand == Entity.Null || input.isJoint)
+                        return;
+
+                    input.isJoint = true;
+
+                    var jointComponent = jointGroup[input.inHand];
+                    jointComponent.isOriginIndex = true;
+                    jointGroup[input.inHand] = jointComponent;
+
+                    joint.Create(entity, input.inHand);
+                }).Schedule(Dependency);
 
             //Interactive -> Interactive
-            var getInteractiveForJoint = Entities.ForEach((Entity entity,
-                ref Interactive interactive) =>
+            Entities.ForEach((Entity entity, ref InteractiveComponent interactive) =>
             {
-                if(interactive.withInteractive != JointState.InProgress)
+                if (interactive.CollisionWith == Entity.Null)
                     return;
-                
-                if (interactive.withHand == JointState.On)
-                    entityInteractive[0] = entity;
-                else if (interactive.withHand == JointState.Off)
-                    entityInteractive[1] = entity;
 
-                interactive.withInteractive = JointState.Off;
-            }).Schedule(createHandJointInteractive);
-
-            Job.WithReadOnly(physicsWorld).WithCode(() =>
-            {
-                if(entityInteractive[0] == Entity.Null ||
-                   entityInteractive[1] == Entity.Null)
-                    return;
-                
-                var rigidTransformHand = physicsWorld.Bodies[physicsWorld.GetRigidBodyIndex(entityInteractive[0])].WorldFromBody;
-                var rigidTransformObject = physicsWorld.Bodies[physicsWorld.GetRigidBodyIndex(entityInteractive[1])].WorldFromBody;
-                var bodyFrameA = new BodyFrame(new RigidTransform());
-            
-                RigidTransform bFromA =
-                    math.mul(math.inverse(rigidTransformObject),
-                        rigidTransformHand);
-                var bodyFrameB = new BodyFrame(new RigidTransform()
+                if (interactive.inHand == HandType.None &&
+                    interactive.CollisionState == CollisionState.ReadyToJoint)
                 {
-                    pos = bFromA.pos,
-                    rot = bFromA.rot
-                });
-                var _entityHands = cbs.CreateEntity();
-                cbs.AddComponent(_entityHands,
-                    new PhysicsConstrainedBodyPair(entityInteractive[0],
-                        entityInteractive[1], true));
-                cbs.AddComponent(_entityHands,
-                    PhysicsJoint.CreateFixed(bodyFrameA, bodyFrameB));
-            }).Schedule(getInteractiveForJoint).Complete();
-            entityInteractive.Dispose();
+                    joint.Create(interactive.CollisionWith, entity);
+                }
+
+                if (interactive.CollisionState == CollisionState.Yes)
+                {
+                    interactive.CollisionState = CollisionState.ReadyToJoint;
+                }
+                else if (interactive.CollisionState == CollisionState.ReadyToJoint)
+                {
+                    interactive.CollisionWith = Entity.Null;
+                    interactive.CollisionState = CollisionState.None;
+                }
+            }).Schedule(createHandJointInteractive).Complete();
         }
     }
 }

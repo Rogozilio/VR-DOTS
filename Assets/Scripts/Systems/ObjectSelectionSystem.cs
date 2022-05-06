@@ -1,6 +1,6 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Linq;
-using Components;
+using DOTS.Components;
 using DOTS.Enum;
 using DOTS.Tags;
 using Unity.Burst;
@@ -16,7 +16,7 @@ namespace DOTS.Systems
 {
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(FixedStepSimulationSystemGroup))]
-    public class ObjectSelectionSystem : SystemBase
+    public partial class ObjectSelectionSystem : SystemBase
     {
         protected override void OnUpdate()
         {
@@ -25,16 +25,14 @@ namespace DOTS.Systems
             var rotateObject = new NativeArray<Rotation>(2, Allocator.TempJob);
             var entityObject = new NativeArray<Entity>(2, Allocator.TempJob);
             var entityGhost = new NativeArray<Entity>(2, Allocator.TempJob);
-
             var GetMinDistanceJob = Entities.ForEach(
-                    (Entity entity, ref Interactive interactive, in Translation translation, in Rotation rotate) =>
+                    (Entity entity, in InteractiveComponent interactive, in Translation translation, in Rotation rotate) =>
                     {
-                        if (interactive.nearHand == HandType.None
-                            || interactive.withHand == JointState.On)
+                        if (interactive.nearHand == HandType.None ||
+                            interactive.nearHand == interactive.inHand ||
+                            interactive.inHand == HandType.Both)
                             return;
-                        
                         var index = (int) interactive.nearHand - 1;
-
                         if (minDistanceHandToObject[index] == 0f ||
                             minDistanceHandToObject[index] > interactive.distance)
                         {
@@ -46,10 +44,9 @@ namespace DOTS.Systems
                         }
                     }).WithName("GetMinDistanceJob")
                 .Schedule(Dependency);
-
             var setIsClosestForInteractive = Job.WithCode(() =>
             {
-                var interactive = GetComponentDataFromEntity<Interactive>();
+                var interactive = GetComponentDataFromEntity<InteractiveComponent>();
                 foreach (var entity in entityObject)
                 {
                     if (entity != Entity.Null)
@@ -60,8 +57,7 @@ namespace DOTS.Systems
                     }
                 }
             }).WithName("setIsClosestForInteractive").Schedule(GetMinDistanceJob);
-
-            var selectedObject = Entities.WithAll<TagGhost>().ForEach(
+            Entities.WithAll<TagGhost>().ForEach(
                     (Entity entity, ref Translation translation, ref Rotation rotate, ref NonUniformScale scale) =>
                     {
                         for (int i = 0; i < entityGhost.Length; i++)
@@ -74,9 +70,8 @@ namespace DOTS.Systems
                             }
                         }
                     })
-                .WithName("selectedObject").Schedule(setIsClosestForInteractive);
-            selectedObject.Complete();
-
+                .WithName("selectedObject").Schedule(setIsClosestForInteractive).Complete();;
+            
             minDistanceHandToObject.Dispose();
             transformObject.Dispose();
             rotateObject.Dispose();

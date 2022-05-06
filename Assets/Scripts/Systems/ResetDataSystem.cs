@@ -1,5 +1,4 @@
-﻿using System;
-using Components;
+using System;
 using DOTS.Components;
 using DOTS.Enum;
 using DOTS.Tags;
@@ -12,9 +11,29 @@ using UnityEngine;
 
 namespace DOTS.Systems
 {
+    //[DisableAutoCreation]
     [UpdateInGroup(typeof(InitializationSystemGroup))]
-    public class ResetDataSystem : SystemBase
+    public partial class ResetDataSystem : SystemBase
     {
+        private EndInitializationEntityCommandBufferSystem
+            _endInitializationEntityCommandBufferSystem;
+
+        protected override void OnCreate()
+        {
+            _endInitializationEntityCommandBufferSystem =
+                World.GetOrCreateSystem<EndInitializationEntityCommandBufferSystem>();
+        }
+        protected override void OnStartRunning()
+        {
+            var cbs = _endInitializationEntityCommandBufferSystem.CreateCommandBuffer();
+            
+            Entities.WithAll<InteractiveComponent>().WithNone<JointGroup>().ForEach(
+                (Entity entity) =>
+                {
+                    cbs.AddComponent(entity, new JointGroup {index = 0});
+                }).WithoutBurst().Run();
+        }
+
         protected override void OnUpdate()
         {
             Entities.ForEach((ref InputControllerComponent input) =>
@@ -24,12 +43,11 @@ namespace DOTS.Systems
                     input.inHand = Entity.Null;
                     input.isJoint = false;
                 }
-                    
             }).Schedule();
 
-        //Сброс значений интерактивных объектов
+            //Сброс значений интерактивных объектов
             Entities.ForEach(
-                (ref Interactive interactive) =>
+                (ref InteractiveComponent interactive) =>
                 {
                     interactive.isClosest = false;
                     interactive.nearHand = HandType.None;
@@ -37,10 +55,7 @@ namespace DOTS.Systems
                 }).Schedule();
             //Сброс значений призрачных проекций
             Entities.WithAll<TagGhost>().ForEach(
-                (ref NonUniformScale scale, ref Translation translation, in LocalToWorld local) =>
-                {
-                    translation.Value = float3.zero;
-                }).Schedule();
+                (ref Translation translation) => { translation.Value = float3.zero; }).Schedule();
         }
     }
 }

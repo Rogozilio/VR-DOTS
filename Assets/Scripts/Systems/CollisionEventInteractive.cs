@@ -1,4 +1,3 @@
-using Components;
 using DOTS.Components;
 using DOTS.Enum;
 using Unity.Collections;
@@ -12,50 +11,20 @@ namespace DOTS.Systems
 {
     [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
     [UpdateAfter(typeof(TriggerEventHandWithInteractive))]
-    public class CollisionEventInteractive : SystemBase
+    public partial class CollisionEventInteractive : SystemBase
     {
-        private BuildPhysicsWorld _buildPhysicsWorld;
         private StepPhysicsWorld _stepPhysicsWorld;
+        private EndFixedStepSimulationEntityCommandBufferSystem commandBufferSystem;
 
         protected override void OnCreate()
         {
-            base.OnCreate();
-            _buildPhysicsWorld = World.GetOrCreateSystem<BuildPhysicsWorld>();
             _stepPhysicsWorld = World.GetOrCreateSystem<StepPhysicsWorld>();
-        }
-
-        private RigidTransform GetRigidBody(Entity entity)
-        {
-            var physicsWorld = World.GetOrCreateSystem<BuildPhysicsWorld>().PhysicsWorld;
-            var index = physicsWorld.GetRigidBodyIndex(entity);
-            return physicsWorld.Bodies[index].WorldFromBody;
-        }
-
-        private void CreateJointEntity(Entity entityHand, Entity entityObject)
-        {
-            if (entityHand == Entity.Null || entityObject == Entity.Null)
-                return;
-
-            var bodyFrameA = new BodyFrame(new RigidTransform());
-            RigidTransform bFromA =
-                math.mul(math.inverse(GetRigidBody(entityObject)),
-                    GetRigidBody(entityHand));
-            var bodyFrameB = new BodyFrame(new RigidTransform()
-            {
-                pos = bFromA.pos,
-                rot = bFromA.rot
-            });
-            var _entityHands = EntityManager.CreateEntity();
-            EntityManager.AddComponentData(_entityHands,
-                new PhysicsConstrainedBodyPair(entityHand,
-                    entityObject, true));
-            EntityManager.AddComponentData(_entityHands,
-                PhysicsJoint.CreateFixed(bodyFrameA, bodyFrameB));
+            commandBufferSystem = World.GetOrCreateSystem<EndFixedStepSimulationEntityCommandBufferSystem>();
         }
 
         private struct CollisionSystem : ICollisionEventsJob
         {
-            public ComponentDataFromEntity<Interactive> interactiveGroup;
+            public ComponentDataFromEntity<InteractiveComponent> interactiveGroup;
 
             public void Execute(CollisionEvent collision)
             {
@@ -63,32 +32,20 @@ namespace DOTS.Systems
                     || !interactiveGroup.HasComponent(collision.EntityB))
                     return;
 
-                Entity entityA = Entity.Null;
-                Entity entityB = Entity.Null;
-
-                if (interactiveGroup[collision.EntityA].withHand == JointState.On &&
-                    interactiveGroup[collision.EntityB].withHand == JointState.On)
+                if (interactiveGroup[collision.EntityA].inHand == HandType.Left &&
+                    interactiveGroup[collision.EntityB].inHand == HandType.Right ||
+                    interactiveGroup[collision.EntityB].inHand == HandType.Left &&
+                    interactiveGroup[collision.EntityA].inHand == HandType.Right)
                 {
-                    entityA = collision.EntityA;
-                    entityB = collision.EntityB;
+                    var interactiveA = interactiveGroup[collision.EntityA];
+                    var interactiveB = interactiveGroup[collision.EntityB];
+                    interactiveA.CollisionWith = collision.EntityB;
+                    interactiveB.CollisionWith = collision.EntityA;
+                    interactiveA.CollisionState = CollisionState.Yes;
+                    interactiveB.CollisionState = CollisionState.Yes;
+                    interactiveGroup[collision.EntityA] = interactiveA;
+                    interactiveGroup[collision.EntityB] = interactiveB;
                 }
-                else if (interactiveGroup[collision.EntityB].withHand == JointState.On &&
-                         interactiveGroup[collision.EntityA].withHand == JointState.On)
-                {
-                    entityA = collision.EntityB;
-                    entityB = collision.EntityA;
-                }
-                else
-                {
-                    return;
-                }
-
-                var interactiveA = interactiveGroup[entityA];
-                var interactiveB = interactiveGroup[entityB];
-                interactiveA.withInteractive = JointState.InProgress;
-                interactiveB.withInteractive = JointState.InProgress;
-                interactiveGroup[entityA] = interactiveA;
-                interactiveGroup[entityB] = interactiveB;
             }
         }
 
@@ -96,10 +53,10 @@ namespace DOTS.Systems
         {
             var CollisionSystem = new CollisionSystem
             {
-                interactiveGroup = GetComponentDataFromEntity<Interactive>()
+                interactiveGroup = GetComponentDataFromEntity<InteractiveComponent>()
             };
-            CollisionSystem.Schedule(_stepPhysicsWorld.Simulation,
-                ref _buildPhysicsWorld.PhysicsWorld, Dependency).Complete();
+            Dependency = CollisionSystem.Schedule(_stepPhysicsWorld.Simulation, Dependency);
+            commandBufferSystem.AddJobHandleForProducer(Dependency);
         }
     }
 }

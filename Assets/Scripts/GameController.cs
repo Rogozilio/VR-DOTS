@@ -12,13 +12,13 @@ public class GameController : MonoBehaviour
     public Transform camera;
     public  static float3 cameraToWorld;
     public InputActionAsset inputActionAsset;
-
-    public static XRCameraInput XRCamera;
-    public static XRLeftHand XRLeftHand;
-    public static XRRightHand XRRightHand;
+    
+    public static Hands Hands;
 
     private void Awake()
     {
+        Hands.input = new Input[2];
+        
         if (gameController && gameController != this)
         {
             Destroy(this);
@@ -32,31 +32,26 @@ public class GameController : MonoBehaviour
             map.Enable();
             switch (map.name)
             {
-                case "XRI HMD":
-                    map["Position"].performed += (ctx) => {
-                        XRCamera.position = ctx.ReadValue<Vector3>(); };
-                    map["Rotation"].performed += (ctx) => {
-                        XRCamera.rotation = (ctx.ReadValue<Quaternion>()); };
-                    break;
                 case "XRI LeftHand":
                     map["Position"].performed += (ctx) => {
-                        XRLeftHand.input.position = ctx.ReadValue<Vector3>(); };
+                        Hands.input[0].position = ctx.ReadValue<Vector3>() + new Vector3(
+                            cameraToWorld.x, 0, cameraToWorld.z); };
                     map["Rotation"].performed += (ctx) => {
-                        XRLeftHand.input.rotation = (ctx.ReadValue<Quaternion>()); };
+                        Hands.input[0].rotation = (ctx.ReadValue<Quaternion>()); };
                     map["Tracking State"].performed += (ctx) => {
-                        XRLeftHand.input.trackingState = ctx.ReadValue<int>(); };
+                        Hands.input[0].trackingState = ctx.ReadValue<int>(); };
                     map["Select"].performed += (ctx) => {
-                        XRLeftHand.input.select = (ctx.ReadValue<float>()); };
+                        Hands.input[0].select = (ctx.ReadValue<float>()); };
                     map["Select Value"].performed += (ctx) => {
-                        XRLeftHand.input.selectValue = ctx.ReadValue<float>(); };
+                        Hands.input[0].selectValue = ctx.ReadValue<float>(); };
                     map["Activate"].performed += (ctx) => {
-                        XRLeftHand.input.activate = (ctx.ReadValue<float>()); };
+                        Hands.input[0].activate = (ctx.ReadValue<float>()); };
                     map["Activate Value"].performed += (ctx) => {
-                        XRLeftHand.input.activateValue = (ctx.ReadValue<float>()); };
+                        Hands.input[0].activateValue = (ctx.ReadValue<float>()); };
                     map["UI Press"].performed += (ctx) => {
-                        XRLeftHand.input.uiPress = (ctx.ReadValue<float>()); };
+                        Hands.input[0].uiPress = (ctx.ReadValue<float>()); };
                     map["UI Press Value"].performed += (ctx) => {
-                        XRLeftHand.input.uiPressValue = (ctx.ReadValue<float>()); };
+                        Hands.input[0].uiPressValue = (ctx.ReadValue<float>()); };
                     //map["Haptic Device"].performed += (ctx) => {
                     //     XRLeftHand.input.hapticDevice = (ctx.ReadValue<float3>()); };
                     // map["Teleport Select"].performed += (ctx) => {
@@ -66,49 +61,50 @@ public class GameController : MonoBehaviour
                     // map["Teleport Mode Cancel"].performed += (ctx) => {
                     //     XRLeftHand.input.teleportModeCancel = (ctx.ReadValue<float>()); };
                     map["Turn"].performed += (ctx) => {
-                        XRLeftHand.input.turn = (ctx.ReadValue<Vector2>()); };
+                        Hands.input[0].turn = (ctx.ReadValue<Vector2>()); };
                     map["Move"].performed += (ctx) => {
-                        XRLeftHand.input.move = (ctx.ReadValue<Vector2>()); };
+                        Hands.input[0].move = (ctx.ReadValue<Vector2>()); };
                     map["Rotate Anchor"].performed += (ctx) => {
-                        XRLeftHand.input.rotateAnchor = (ctx.ReadValue<Vector2>()); };
+                        Hands.input[0].rotateAnchor = (ctx.ReadValue<Vector2>()); };
                     map["Translate Anchor"].performed += (ctx) => {
-                        XRLeftHand.input.translateAnchor = (ctx.ReadValue<Vector2>()); };
+                        Hands.input[0].translateAnchor = (ctx.ReadValue<Vector2>()); };
                     break;
                 case "XRI RightHand":
                     map["Position"].performed += (ctx) => {
-                        XRRightHand.input.position = ctx.ReadValue<Vector3>(); };
+                        Hands.input[1].position = ctx.ReadValue<Vector3>() + new Vector3(
+                            cameraToWorld.x, 0, cameraToWorld.z); };
                     map["Rotation"].performed += (ctx) => {
-                        XRRightHand.input.rotation = (ctx.ReadValue<Quaternion>()); };
+                        Hands.input[1].rotation = (ctx.ReadValue<Quaternion>()); };
                     map["Tracking State"].performed += (ctx) => {
-                        XRRightHand.input.trackingState = ctx.ReadValue<int>(); };
+                        Hands.input[1].trackingState = ctx.ReadValue<int>(); };
                     map["Select"].performed += (ctx) => {
-                        XRRightHand.input.select = (ctx.ReadValue<float>()); };
+                        Hands.input[1].select = (ctx.ReadValue<float>()); };
                     map["Select Value"].performed += (ctx) => {
-                        XRRightHand.input.selectValue = ctx.ReadValue<float>(); };
+                        Hands.input[1].selectValue = ctx.ReadValue<float>(); };
                     map["Activate"].performed += (ctx) => {
-                        XRRightHand.input.activate = (ctx.ReadValue<float>()); };
+                        Hands.input[1].activate = (ctx.ReadValue<float>()); };
                     map["Activate Value"].performed += (ctx) => {
-                        XRRightHand.input.activateValue = (ctx.ReadValue<float>()); };
+                        Hands.input[1].activateValue = (ctx.ReadValue<float>()); };
                     map["UI Press"].performed += (ctx) => {
-                        XRRightHand.input.uiPress = (ctx.ReadValue<float>()); };
+                        Hands.input[1].uiPress = (ctx.ReadValue<float>()); };
                     map["UI Press Value"].performed += (ctx) => {
-                        XRRightHand.input.uiPressValue = (ctx.ReadValue<float>()); };
+                        Hands.input[1].uiPressValue = (ctx.ReadValue<float>()); };
                     //map["Haptic Device"].performed += (ctx) => {
                     //     XRRightHand.input.hapticDevice = (ctx.ReadValue<float3>()); };
                     map["Teleport Select"].performed += (ctx) => {
-                        XRRightHand.input.teleportSelect = (ctx.ReadValue<float>()); };
+                        Hands.input[1].teleportSelect = (ctx.ReadValue<float>()); };
                     map["Teleport Mode Activate"].performed += (ctx) => {
-                        XRRightHand.input.teleportModeActivate = (ctx.ReadValue<float2>()); };
+                        Hands.input[1].teleportModeActivate = (ctx.ReadValue<float2>()); };
                     map["Teleport Mode Cancel"].performed += (ctx) => {
-                        XRRightHand.input.teleportModeCancel = (ctx.ReadValue<float>()); };
+                        Hands.input[1].teleportModeCancel = (ctx.ReadValue<float>()); };
                     map["Turn"].performed += (ctx) => {
-                        XRRightHand.input.turn = (ctx.ReadValue<Vector2>()); };
+                        Hands.input[1].turn = (ctx.ReadValue<Vector2>()); };
                     map["Move"].performed += (ctx) => {
-                        XRRightHand.input.move = (ctx.ReadValue<Vector2>()); };
+                        Hands.input[1].move = (ctx.ReadValue<Vector2>()); };
                     map["Rotate Anchor"].performed += (ctx) => {
-                        XRRightHand.input.rotateAnchor = (ctx.ReadValue<Vector2>()); };
+                        Hands.input[1].rotateAnchor = (ctx.ReadValue<Vector2>()); };
                     map["Translate Anchor"].performed += (ctx) => {
-                        XRRightHand.input.translateAnchor = (ctx.ReadValue<Vector2>()); };
+                        Hands.input[1].translateAnchor = (ctx.ReadValue<Vector2>()); };
                     break;
             }
         }
@@ -120,20 +116,9 @@ public class GameController : MonoBehaviour
     }
 }
 
-public struct XRCameraInput
+public struct Hands
 {
-    public float3 position;
-    public Quaternion rotation;
-}
-
-public struct XRLeftHand
-{
-    public Input input;
-}
-
-public struct XRRightHand
-{
-    public Input input;
+    public Input[] input;
 }
 
 public struct Input

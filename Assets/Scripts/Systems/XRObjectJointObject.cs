@@ -1,5 +1,4 @@
-﻿using Components;
-using DOTS.Enum;
+﻿using DOTS.Enum;
 using DOTS.Tags;
 using Unity.Entities;
 using Unity.Entities.UniversalDelegates;

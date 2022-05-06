@@ -1090,9 +1090,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ghost: {fileID: 11761991}
-  isJointed: 0
   inHand: 0
-  Hand: {fileID: 0}
+  withInteractive: 0
+  isClosest: 0
+  nearHand: 0
+  distance: 0
 --- !u!114 &233605579
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1147,6 +1149,7 @@ MonoBehaviour:
     x: 0.4
     y: 0.4
     z: 0.4
+  m_WorldIndex: 0
   m_CustomTags:
     Tag00: 0
     Tag01: 0
@@ -1370,9 +1373,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ghost: {fileID: 627782189}
-  isJointed: 0
   inHand: 0
-  Hand: {fileID: 0}
+  withInteractive: 0
+  isClosest: 0
+  nearHand: 0
+  distance: 0
 --- !u!114 &233612899
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1427,6 +1432,7 @@ MonoBehaviour:
     x: 0.4
     y: 0.4
     z: 0.4
+  m_WorldIndex: 0
   m_CustomTags:
     Tag00: 0
     Tag01: 0
@@ -1615,9 +1621,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ghost: {fileID: 1589809773}
-  isJointed: 0
   inHand: 0
-  Hand: {fileID: 0}
+  withInteractive: 0
+  isClosest: 0
+  nearHand: 0
+  distance: 0
 --- !u!114 &233613451
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1672,6 +1680,7 @@ MonoBehaviour:
     x: 0.4
     y: 0.4
     z: 0.4
+  m_WorldIndex: 0
   m_CustomTags:
     Tag00: 0
     Tag01: 0
@@ -1896,9 +1905,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ghost: {fileID: 170763318}
-  isJointed: 0
   inHand: 0
-  Hand: {fileID: 0}
+  withInteractive: 0
+  isClosest: 0
+  nearHand: 0
+  distance: 0
 --- !u!114 &233615651
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1953,6 +1964,7 @@ MonoBehaviour:
     x: 0.4
     y: 0.4
     z: 0.4
+  m_WorldIndex: 0
   m_CustomTags:
     Tag00: 0
     Tag01: 0
@@ -2177,9 +2189,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ghost: {fileID: 1195507567}
-  isJointed: 0
   inHand: 0
-  Hand: {fileID: 0}
+  withInteractive: 0
+  isClosest: 0
+  nearHand: 0
+  distance: 0
 --- !u!114 &233810325
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2234,6 +2248,7 @@ MonoBehaviour:
     x: 0.4
     y: 0.4
     z: 0.4
+  m_WorldIndex: 0
   m_CustomTags:
     Tag00: 0
     Tag01: 0
@@ -3127,9 +3142,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ghost: {fileID: 1792249249}
-  isJointed: 0
   inHand: 0
-  Hand: {fileID: 0}
+  withInteractive: 0
+  isClosest: 0
+  nearHand: 0
+  distance: 0
 --- !u!114 &455137452
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3184,6 +3201,7 @@ MonoBehaviour:
     x: 0.4
     y: 0.4
     z: 0.4
+  m_WorldIndex: 0
   m_CustomTags:
     Tag00: 0
     Tag01: 0
@@ -3371,9 +3389,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ghost: {fileID: 473621169}
-  isJointed: 0
   inHand: 0
-  Hand: {fileID: 0}
+  withInteractive: 0
+  isClosest: 0
+  nearHand: 0
+  distance: 0
 --- !u!114 &455138704
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3428,6 +3448,7 @@ MonoBehaviour:
     x: 0.4
     y: 0.4
     z: 0.4
+  m_WorldIndex: 0
   m_CustomTags:
     Tag00: 0
     Tag01: 0
@@ -3615,9 +3636,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ghost: {fileID: 1104058061}
-  isJointed: 0
   inHand: 0
-  Hand: {fileID: 0}
+  withInteractive: 0
+  isClosest: 0
+  nearHand: 0
+  distance: 0
 --- !u!114 &455147122
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3672,6 +3695,7 @@ MonoBehaviour:
     x: 0.4
     y: 0.4
     z: 0.4
+  m_WorldIndex: 0
   m_CustomTags:
     Tag00: 0
     Tag01: 0
@@ -3859,9 +3883,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ghost: {fileID: 597880111}
-  isJointed: 0
   inHand: 0
-  Hand: {fileID: 0}
+  withInteractive: 0
+  isClosest: 0
+  nearHand: 0
+  distance: 0
 --- !u!114 &455298112
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3916,6 +3942,7 @@ MonoBehaviour:
     x: 0.4
     y: 0.4
     z: 0.4
+  m_WorldIndex: 0
   m_CustomTags:
     Tag00: 0
     Tag01: 0
@@ -4103,9 +4130,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ghost: {fileID: 1158246674}
-  isJointed: 0
   inHand: 0
-  Hand: {fileID: 0}
+  withInteractive: 0
+  isClosest: 0
+  nearHand: 0
+  distance: 0
 --- !u!114 &455306818
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4160,6 +4189,7 @@ MonoBehaviour:
     x: 0.4
     y: 0.4
     z: 0.4
+  m_WorldIndex: 0
   m_CustomTags:
     Tag00: 0
     Tag01: 0
@@ -8238,6 +8268,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
+  m_VolumeFrameworkUpdateModeOption: 2
   m_RenderPostProcessing: 0
   m_Antialiasing: 0
   m_AntialiasingQuality: 2
@@ -8525,6 +8556,7 @@ MonoBehaviour:
     x: 0.4
     y: 0.4
     z: 0.4
+  m_WorldIndex: 0
   m_CustomTags:
     Tag00: 0
     Tag01: 0
@@ -8594,7 +8626,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   handType: 1
-  isOccupied: 0
+  inHand: {fileID: 0}
+  isJoint: 0
   position:
     x: 0
     y: 0
@@ -8881,6 +8914,7 @@ MonoBehaviour:
     x: 0.4
     y: 0.4
     z: 0.4
+  m_WorldIndex: 0
   m_CustomTags:
     Tag00: 0
     Tag01: 0
@@ -8950,7 +8984,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   handType: 2
-  isOccupied: 0
+  inHand: {fileID: 0}
+  isJoint: 0
   position:
     x: 0
     y: 0

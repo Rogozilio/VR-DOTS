@@ -33,8 +33,8 @@ public class MovePlayer : MonoBehaviour
     }
     private void updateAxis(InputAction.CallbackContext obj)
     {
-        horizontalAxis = GameController.XRLeftHand.input.move.x;//UnityEngine.Input.GetAxis("Horizontal");
-        verticalAxis = GameController.XRLeftHand.input.move.y; //UnityEngine.Input.GetAxis("Vertical");
+        horizontalAxis = GameController.Hands.input[0].move.x;//UnityEngine.Input.GetAxis("Horizontal");
+        verticalAxis = GameController.Hands.input[0].move.y; //UnityEngine.Input.GetAxis("Vertical");
     }
 
     private void Update()

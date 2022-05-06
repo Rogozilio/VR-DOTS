@@ -1,9 +1,9 @@
 ﻿namespace DOTS.Enum
 {
-    public enum JointState
+    public enum CollisionState
     {
-        Off,
-        InProgress,
-        On
+        None,
+        Yes,
+        ReadyToJoint
     }
 }

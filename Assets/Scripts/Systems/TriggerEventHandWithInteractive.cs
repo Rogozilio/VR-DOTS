@@ -1,11 +1,12 @@
-﻿using Components;
 using DOTS.Components;
 using DOTS.Enum;
 using DOTS.Tags;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Physics;
+using Unity.Physics.GraphicsIntegration;
 using Unity.Physics.Systems;
 using Unity.Rendering;
 using Unity.Transforms;
@@ -14,22 +15,22 @@ using UnityEngine;
 namespace DOTS.Systems
 {
     [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
-    [UpdateAfter(typeof(MoveHandSystem))]
-    public class TriggerEventHandWithInteractive : SystemBase
+    [UpdateAfter(typeof(CopyPhysicsVelocityToSmoothing))]
+    public partial class TriggerEventHandWithInteractive : SystemBase
     {
-        private BuildPhysicsWorld _buildPhysicsWorld;
         private StepPhysicsWorld _stepPhysicsWorld;
+        private EndFixedStepSimulationEntityCommandBufferSystem commandBufferSystem;
+
         protected override void OnCreate()
         {
-            _buildPhysicsWorld = World.GetOrCreateSystem<BuildPhysicsWorld>();
             _stepPhysicsWorld = World.GetOrCreateSystem<StepPhysicsWorld>();
+            commandBufferSystem = World.GetOrCreateSystem<EndFixedStepSimulationEntityCommandBufferSystem>();
         }
-
         private struct ApplicationJob : ITriggerEventsJob
         {
-            public ComponentDataFromEntity<InputControllerComponent> handGroup;
-            public ComponentDataFromEntity<Interactive> interactiveGroup;
-            public ComponentDataFromEntity<Translation> translate;
+            [ReadOnly] public ComponentDataFromEntity<InputControllerComponent> handGroup;
+            [ReadOnly] public ComponentDataFromEntity<Translation> translate;
+            public ComponentDataFromEntity<InteractiveComponent> interactiveGroup;
             public void Execute(TriggerEvent triggerEvent)
             {
                 Entity entityHand = Entity.Null;
@@ -50,13 +51,12 @@ namespace DOTS.Systems
                 {
                     return;
                 }
-                var hand = handGroup[entityHand];
+                if(handGroup[entityHand].isJoint)
+                    return;
                 var interactive = interactiveGroup[entityInHand];
-
-                interactive.nearHand = hand.handType;
-                interactive.distance = math.distance(translate[entityHand].Value, translate[entityInHand].Value);
-                
-                handGroup[entityHand] = hand;
+                interactive.nearHand = handGroup[entityHand].handType;
+                interactive.distance = math.distance(translate[entityHand].Value,
+                    translate[entityInHand].Value);
                 interactiveGroup[entityInHand] = interactive;
             }
         }
@@ -65,11 +65,11 @@ namespace DOTS.Systems
             var applicationJob = new ApplicationJob
             {
                 handGroup = GetComponentDataFromEntity<InputControllerComponent>(),
-                interactiveGroup = GetComponentDataFromEntity<Interactive>(),
+                interactiveGroup = GetComponentDataFromEntity<InteractiveComponent>(),
                 translate = GetComponentDataFromEntity<Translation>(),
             };
-            applicationJob.Schedule(_stepPhysicsWorld.Simulation,
-                ref _buildPhysicsWorld.PhysicsWorld, Dependency).Complete();
+            Dependency = applicationJob.Schedule(_stepPhysicsWorld.Simulation, Dependency);
+            commandBufferSystem.AddJobHandleForProducer(Dependency);
         }
     }
 }

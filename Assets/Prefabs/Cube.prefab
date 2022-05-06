@@ -269,6 +269,7 @@ MonoBehaviour:
     x: 0.4
     y: 0.4
     z: 0.4
+  m_WorldIndex: 0
   m_CustomTags:
     Tag00: 0
     Tag01: 0
@@ -304,6 +305,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ghost: {fileID: 0}
-  isJointed: 0
   inHand: 0
-  Hand: {fileID: 0}
+  withInteractive: 0
+  isClosest: 0
+  nearHand: 0
+  distance: 0

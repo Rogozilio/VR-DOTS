@@ -1,5 +1,4 @@
-﻿using Components;
-using DOTS.Enum;
+﻿using DOTS.Enum;
 using DOTS.Tags;
 using Unity.Burst;
 using Unity.Collections;

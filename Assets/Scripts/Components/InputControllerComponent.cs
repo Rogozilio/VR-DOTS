@@ -10,11 +10,11 @@ namespace DOTS.Components
     public struct InputControllerComponent : IComponentData
     {
         public HandType handType;
-        [HideInInspector]public Entity inHand;
-        [HideInInspector]public bool isJoint;
-        [HideInInspector]public float3 position;
-        [HideInInspector]public quaternion rotation;
-        [HideInInspector]public int trackingState;
+        public Entity inHand;
+        public bool isJoint;
+        [HideInInspector] public float3 position;
+        [HideInInspector] public quaternion rotation;
+        [HideInInspector] public int trackingState;
         [HideInInspector]public float select;
         [HideInInspector]public float selectValue;
         [HideInInspector]public float activate;
