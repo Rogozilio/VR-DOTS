@@ -33,6 +33,13 @@ namespace DOTS.Systems
 
         protected override void OnUpdate()
         {
+            Entities
+                .WithAll<PhysicsConstrainedBodyPair>()
+                .WithNone<PhysicsWorldIndex>()
+                .ForEach((entity) =>
+                {
+                    EntityManager.AddSharedComponentData(entity, new PhysicsWorldIndex());
+                });
             Entities.ForEach(
                 (ref PhysicsGravityFactor gravity,
                     ref InteractiveComponent interactive, ref PhysicsMass mass, ref DefaultInverseInertia defaultInverseInertia) =>

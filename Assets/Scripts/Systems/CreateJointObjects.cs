@@ -43,7 +43,7 @@ namespace DOTS.Systems
                     entityB, true));
                 _cbs.AddComponent(entityHands,
                     PhysicsJoint.CreateFixed(bodyFrameA, bodyFrameB));
-                _cbs.AddSharedComponent(entityHands, new PhysicsWorldIndex());
+                //_cbs.AddSharedComponent(entityHands, new PhysicsWorldIndex());
             }
         }
 

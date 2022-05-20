@@ -24,30 +24,6 @@ namespace DOTS.Systems
                     
 
             }).Schedule();
-            // Entities.ForEach((ref PhysicsConstrainedBodyPair bodyPair) =>
-            // {
-            //     //JointIndex for interactive in hand
-            //     if (inputController.HasComponent(bodyPair.EntityA) ||
-            //         inputController.HasComponent(bodyPair.EntityB))
-            //     {
-            //         if (jointGroup.HasComponent(bodyPair.EntityA) && 
-            //             jointGroup[bodyPair.EntityA].isOriginIndex)
-            //         {
-            //             var joint = jointGroup[bodyPair.EntityA];
-            //             joint.index = bodyPair.EntityA.Index;
-            //             joint.isOriginIndex = false;
-            //             jointGroup[bodyPair.EntityA] = joint;
-            //         }
-            //         else if (jointGroup.HasComponent(bodyPair.EntityB) &&
-            //                  jointGroup[bodyPair.EntityB].isOriginIndex)
-            //         {
-            //             var joint = jointGroup[bodyPair.EntityB];
-            //             joint.index = bodyPair.EntityB.Index;
-            //             joint.isOriginIndex = false;
-            //             jointGroup[bodyPair.EntityB] = joint;
-            //         }
-            //     }
-            // }).Schedule();
 
             Entities.ForEach((ref PhysicsConstrainedBodyPair bodyPair) =>
             {

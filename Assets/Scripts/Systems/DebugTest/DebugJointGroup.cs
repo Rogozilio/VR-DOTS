@@ -7,7 +7,7 @@ using Random = UnityEngine.Random;
 
 namespace DOTS.Systems.DebugTest
 {
-    //[DisableAutoCreation]
+    [DisableAutoCreation]
     [UpdateInGroup(typeof(LateSimulationSystemGroup))]
     public partial class DebugJointGroup : SystemBase
     {
